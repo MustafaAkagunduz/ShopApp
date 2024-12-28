@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  shopsmart-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shopsmart-api
+    restart: on-failure
+    environment:
+      - POSTGRES_HOST=shopsmart-database
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://shopsmart-database:${POSTGRES_PORT}/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+    ports:
+      - ${SPRING_PORT}:${SPRING_PORT}
+    networks:
+      - my_network
+
+  shopsmart-database:
+    image: postgres:latest
+    restart: always
+    container_name: shopsmart-database
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5432:5432
+    networks:
+      - my_network
+    volumes:
+      - postgres_dev:/var/lib/postgresql/data
+
+volumes:
+  postgres_dev:
+
+networks:
+  my_network:
+    driver: bridge
